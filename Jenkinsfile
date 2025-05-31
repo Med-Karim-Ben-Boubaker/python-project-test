@@ -2,8 +2,11 @@ pipeline {
     agent {
         docker {
             image 'docker:20.10.24-dind'
-            args '--privileged --network host -v /var/run/docker.sock:/var/run/docker.sock'
-            args '-u root'  // Run as root inside the container
+            args '--privileged'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+            args '--storage-driver=overlay2'
+            args '--group-add 0'  // Run as root
+            label 'docker'  // Make sure you have a Jenkins agent with Docker installed
         }
     }
 
@@ -12,13 +15,24 @@ pipeline {
         DOCKER_TAG = "${env.BUILD_NUMBER}"
         CONTAINER_NAME = "test-container-${env.BUILD_NUMBER}"
         TEST_RESULTS_DIR = "${WORKSPACE}/test-results"
+        DOCKER_HOST = 'unix:///var/run/docker.sock'
     }
 
     stages {
+        stage('Check Docker') {
+            steps {
+                sh '''
+                    echo "Docker version:"
+                    docker --version
+                    echo "Docker info:"
+                    docker info
+                '''
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh 'docker --version'
                     sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
                 }
             }
@@ -82,7 +96,6 @@ pipeline {
                 // Cleanup containers
                 sh "docker stop ${CONTAINER_NAME} || true"
                 sh "docker rm -f ${CONTAINER_NAME} || true"
-                sh "docker system prune -f"
                 cleanWs()
             }
         }
