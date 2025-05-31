@@ -21,13 +21,19 @@ pipeline {
             steps {
                 script {
                     sh """
-                    ${VENV_PATH}/bin/pytest app/tests/ -v --cov=app --cov-report=xml:coverage.xml
+                    # Create test-results directory if it doesn't exist
+                    mkdir -p test-results
+                    # Run pytest with both JUnit XML and coverage reports
+                    ${VENV_PATH}/bin/pytest app/tests/ -v \
+                        --junitxml=test-results/junit.xml \
+                        --cov=app \
+                        --cov-report=xml:coverage.xml
                     """
                 }
             }
             post {
                 always {
-                    junit '**/test-results/*.xml'
+                    junit 'test-results/*.xml'
                     cobertura(coberturaReportFile: '**/coverage.xml')
                 }
             }
