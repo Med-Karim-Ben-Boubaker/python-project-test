@@ -49,12 +49,12 @@ pipeline {
         stage('Run & Test Container') {
             steps {
                 // Start container
-                sh "docker run -d --name ${CONTAINER_NAME} -p 8080:8000 ${IMAGE_NAME}"
+                sh "docker run -d --name ${CONTAINER_NAME} -p 8081:8000 ${IMAGE_NAME}"
                 
                 // Wait and test
                 sh '''
                     sleep 10
-                    curl -f http://localhost:8080/health || exit 1
+                    curl -f http://localhost:8081/health || exit 1
                     echo "✅ Application is running!"
                 '''
             }
