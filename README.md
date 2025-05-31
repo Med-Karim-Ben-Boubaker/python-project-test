@@ -68,6 +68,38 @@ Run flake8 for code style checking:
 flake8 app --count --max-complexity=10 --max-line-length=127 --statistics
 ```
 
+## Docker Support
+
+### Prerequisites
+- Docker installed on your system
+
+### Building the Docker Image
+
+```bash
+# Build the Docker image
+docker build -t fastapi-cicd-demo .
+```
+
+### Running the Docker Container
+
+```bash
+# Run the container in detached mode
+docker run -d --name fastapi-app -p 8000:8000 fastapi-cicd-demo
+```
+
+The API will be available at http://localhost:8000
+
+### Stopping the Container
+
+```bash
+docker stop fastapi-app
+```
+### Viewing Logs
+
+```bash
+docker logs fastapi-app
+```
+
 ## Jenkins Pipeline
 
 The project includes a `Jenkinsfile` that defines the CI/CD pipeline with the following stages:
