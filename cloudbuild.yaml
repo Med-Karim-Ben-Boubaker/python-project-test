@@ -1,0 +1,27 @@
+steps:
+  - id: build
+    name: "gcr.io/cloud-builders/docker"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        docker build -t gcr.io/aidodev/pigen/python-project-example:$COMMIT_SHA .
+
+  - id: deploy
+    name: "gcr.io/cloud-builders/gcloud"
+    entrypoint: sh
+    args:
+      - "-c"
+      - |
+        echo "***************************"
+        echo "DEPLOYING TO PIGEN"
+        echo "***************************"
+        gcloud run services update python-project-example \
+          --region=europe-west1 \
+          --image=gcr.io/aidodev/pigen/python-project-example:$COMMIT_SHA \
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  # The Cloud Build service account needs these roles:
+  # - Cloud Run Admin (roles/run.admin)
+  # - Service Account User (roles/iam.serviceAccountUser) on the target service account
